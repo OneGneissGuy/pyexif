@@ -221,9 +221,12 @@ class ExifEditor(object):
         return ret
 
 
-    def getTags(self, just_names=False, include_empty=True):
+    def getTags(self, just_names=False, include_empty=True, XMP_only=False):
         """Returns a list of all the tags for the current image."""
-        cmd = """exiftool -j -d "%Y:%m:%d %H:%M:%S" "{self.photo}" """.format(**locals())
+        if XMP_only:
+            cmd = """exiftool -j -d "%Y:%m:%d %H:%M:%S" "{self.photo}" """.format(**locals())
+        else:
+            cmd = """exiftool -xmp:all -j -d "%Y:%m:%d %H:%M:%S" "{self.photo}" """.format(**locals())
         out = _runproc(cmd, self.photo)
         if not isinstance(out, six.string_types):
             out = out.decode("utf-8")
@@ -242,11 +245,11 @@ class ExifEditor(object):
         return sorted(ret)
 
 
-    def getDictTags(self, include_empty=True):
+    def getDictTags(self, include_empty=True, XMP_only=False):
         """Returns a dict of all the tags for the current image, with the tag
         name as the key and the tag value as the value.
         """
-        tags = self.getTags(include_empty=include_empty)
+        tags = self.getTags(include_empty=include_empty, XMP_only=XMP_only)
         return {k:v for k, v in tags}
 
 
